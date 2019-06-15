@@ -1,12 +1,18 @@
+var width = 40;
+var height = 25;
+var started_at = new Date();
+
 var players = [];
 var map = [];
 var missiles = [];
 var enemies = [];
 var enemy_id = 0;
+var last_enemy_at = started_at;
+var last_enemy_interval = 1000;
 
-for (var i = 0; i < 25; i++) {
+for (var i = 0; i < height; i++) {
     map[i] = [];
-    for (var j = 0; j < 40; j++) {
+    for (var j = 0; j < width; j++) {
         map[i][j] = 0;
     }
 }
@@ -21,22 +27,28 @@ class Player {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.score = 0;
+        this.id = 0;
 
     }
 
     moveUp(params) {
+        if (this.y > 0)
         this.y--;
     }
 
     moveRight() {
+        if (this.x < width - 1)
         this.x++;
     }
 
     moveDown() {
+        if (this.y < height - 1)
         this.y++;
     }
 
     moveLeft() {
+        if (this.x > 0)
         this.x--;
     }
 
@@ -58,7 +70,11 @@ class Player {
 
 }
 
-players[0] = new Player(4, 12, "#FF0000");
+function getRandomX() {return Math.floor(Math.random()*width)};
+
+function getRandomY() {return Math.floor(Math.random()*height)};
+
+players[0] = new Player(getRandomX(), getRandomY(), '#FF0000');
 
 class Missile {
 
@@ -87,6 +103,8 @@ class Enemy {
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+function getRandomColor() {return '#'+(Math.random()*0xFFFFFF<<0).toString(16);}
+
 function updateMap() {
 
     var date = new Date();
@@ -103,8 +121,10 @@ function updateMap() {
         map[player.y][player.x] = player;
     }
 
-    if (Math.floor(Math.random()*50) == 1) {
-        enemies.push(new Enemy(Math.floor(Math.random()*80), Math.floor(Math.random()*25), "#0000FF"));
+    if (date.getTime() - last_enemy_at.getTime() > last_enemy_interval) {
+        enemies.push(new Enemy(getRandomX(), getRandomY(), '#0000FF'));
+        last_enemy_at = new Date();
+        last_enemy_interval = math.cos(enemies.length) + 2 * 50;
     }
 
     for (var i = 0; i < enemies.length; i++) {
@@ -138,6 +158,8 @@ function updateMap() {
                 if (map[missile.y][missile.x] instanceof Enemy) {
                     enemies[map[missile.y][missile.x].id] = null;
                     missiles[i] = null;
+                    players[missile.player.id].score++;
+                    document.getElementById('score').innerHTML = players[missile.player.id].score;
                 }
                 else
                     map[missile.y][missile.x] = missile;

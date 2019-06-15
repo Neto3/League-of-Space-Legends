@@ -103,29 +103,45 @@ function updateMap() {
         map[player.y][player.x] = player;
     }
 
-    if (Math.floor(Math.random()*500) == 1) {
-        enemies.push(new Enemy(Math.floor(Math.random()*10), 3, "#0000FF"));
+    if (Math.floor(Math.random()*50) == 1) {
+        enemies.push(new Enemy(Math.floor(Math.random()*80), Math.floor(Math.random()*25), "#0000FF"));
     }
 
     for (var i = 0; i < enemies.length; i++) {
         var enemy = enemies[i];
+        if (enemy != null)
         map[enemy.y][enemy.x] = enemy;
     }
 
     for (var i = 0; i < missiles.length; i++) {
         var missile = missiles[i];
-        if (date.getTime() - missile.launched_at.getTime() > 10) {
-            missile.y--;
-            missile.launched_at = new Date();
-        }
-        if (missile.y < 0 || missile.x < 0) {
-            missiles.slice(i, 1);
-        } else {
-            if (map[missile.y][missile.x] instanceof Enemy) {
-                enemies.splice(map[missile.y][missile.x].id, 1);
+        if (missile != null) {
+            if (date.getTime() - missile.launched_at.getTime() > 15) {
+                switch (missile.direction) {
+                    case 0:
+                        missile.y--;
+                        break;
+                    case 1:
+                        missile.x++;
+                        break;
+                    case 2:
+                        missile.y++;
+                        break;
+                    case 3:
+                        missile.x--;
+                }
+                missile.launched_at = new Date();
             }
-            else
-                map[missile.y][missile.x] = missile;
+            if (missile.y < 0 || missile.x < 0 || missile.y > 25 || missile.x > 40) {
+                missiles[i] = null;
+            } else {
+                if (map[missile.y][missile.x] instanceof Enemy) {
+                    enemies[map[missile.y][missile.x].id] = null;
+                    missiles[i] = null;
+                }
+                else
+                    map[missile.y][missile.x] = missile;
+            }
         }
     }
 

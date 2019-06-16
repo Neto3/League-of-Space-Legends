@@ -109,6 +109,19 @@ function updateMap() {
 
     var date = new Date();
 
+    var remaining = 30000 - parseInt(date.getTime() - started_at.getTime());
+
+    document.getElementById("time").innerHTML = remaining;
+
+    if (remaining <= 0){
+        alert(players[0].score);
+        players[0].score = 0;
+        enemies = [];
+        started_at = new Date();
+
+    }
+    
+
     for (var i = 0; i < 25; i++) {
         map[i] = [];
         for (var j = 0; j < 40; j++) {
@@ -124,7 +137,8 @@ function updateMap() {
     if (date.getTime() - last_enemy_at.getTime() > last_enemy_interval) {
         enemies.push(new Enemy(getRandomX(), getRandomY(), '#0000FF'));
         last_enemy_at = new Date();
-        last_enemy_interval = math.cos(enemies.length) + 2 * 50;
+        last_enemy_interval = (Math.cos(enemies.length * 0.3) + 1.1) * 200;
+        console.log(last_enemy_interval);
     }
 
     for (var i = 0; i < enemies.length; i++) {
@@ -152,7 +166,7 @@ function updateMap() {
                 }
                 missile.launched_at = new Date();
             }
-            if (missile.y < 0 || missile.x < 0 || missile.y > 25 || missile.x > 40) {
+            if (missile.y < 0 || missile.x < 0 || missile.y > height - 1 || missile.x > 40 - 1) {
                 missiles[i] = null;
             } else {
                 if (map[missile.y][missile.x] instanceof Enemy) {

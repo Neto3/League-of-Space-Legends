@@ -29,10 +29,36 @@ class Player {
         this.color = color;
         this.score = 0;
         this.id = 0;
+		this.isMoving = false;
+		this.movingDirection;
+		this.lastMove;
 
     }
+	
+	startMoving(direction) {
+		this.isMoving = true;
+		this.movingDirection = direction;
+		this.lastMove = new Date();
+	}
+	
+	move() {
+		switch (this.movingDirection) {
+			case 0:
+				this.moveUp();
+				break;
+			case 1:
+				this.moveRight();
+				break;
+			case 2:
+				this.moveDown();
+				break;
+			case 3:
+				this.moveLeft();
+				break;
+		}
+	}
 
-    moveUp(params) {
+    moveUp() {
         if (this.y > 0)
         this.y--;
     }
@@ -117,6 +143,7 @@ function updateMap() {
         alert(players[0].score);
         players[0].score = 0;
         enemies = [];
+        enemy_id = 0;
         started_at = new Date();
 
     }
@@ -131,6 +158,7 @@ function updateMap() {
 
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
+		if (player.isMoving) {player.move();}
         map[player.y][player.x] = player;
     }
 
@@ -138,7 +166,7 @@ function updateMap() {
         enemies.push(new Enemy(getRandomX(), getRandomY(), '#0000FF'));
         last_enemy_at = new Date();
         last_enemy_interval = (Math.cos(enemies.length * 0.3) + 1.1) * 200;
-        console.log(last_enemy_interval);
+        //console.log(last_enemy_interval);
     }
 
     for (var i = 0; i < enemies.length; i++) {
@@ -215,16 +243,49 @@ setInterval(updateCanvas, 1000/60);
 window.addEventListener('keydown', function (e) {
     switch (e.keyCode) {
         case 38:
-            players[0].moveUp();
+            players[0].startMoving(0);
             break;
         case 39:
-            players[0].moveRight();
+            players[0].startMoving(1);
             break;
         case 40:
-            players[0].moveDown();
+            players[0].startMoving(2);
             break;
         case 37:
-            players[0].moveLeft();
+            players[0].startMoving(3);
+            break;
+        case 87:
+            players[0].shootUp();
+            break;
+        case 68:
+            players[0].shootRight();
+            break;
+        case 83:
+            players[0].shootDown();
+            break;
+        case 65:
+            players[0].shootLeft();
+            break;
+    }
+})
+
+window.addEventListener('keyup', function (e) {
+    switch (e.keyCode) {
+        case 38:
+			if (players[0].movingDirection == 0)
+            players[0].isMoving = false;
+            break;
+        case 39:
+			if (players[0].movingDirection == 1)
+            players[0].isMoving = false;
+            break;
+        case 40:
+			if (players[0].movingDirection == 2)
+            players[0].isMoving = false;
+            break;
+        case 37:
+			if (players[0].movingDirection == 3)
+            players[0].isMoving = false;
             break;
         case 87:
             players[0].shootUp();

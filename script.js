@@ -17,9 +17,6 @@ for (var i = 0; i < height; i++) {
     }
 }
 
-var x;
-var y;
-
 class Player {
 
     constructor(x, y, color) {
@@ -31,14 +28,13 @@ class Player {
         this.id = 0;
 		this.isMoving = false;
 		this.movingDirection;
-		this.lastMove;
+		this.lastMove = new Date();
 
     }
 	
 	startMoving(direction) {
 		this.isMoving = true;
 		this.movingDirection = direction;
-		this.lastMove = new Date();
 	}
 	
 	move() {
@@ -56,6 +52,7 @@ class Player {
 				this.moveLeft();
 				break;
 		}
+		this.lastMove = new Date();
 	}
 
     moveUp() {
@@ -131,23 +128,7 @@ var ctx = canvas.getContext("2d");
 
 function getRandomColor() {return '#'+(Math.random()*0xFFFFFF<<0).toString(16);}
 
-function updateMap() {
-
-    var date = new Date();
-
-    var remaining = 30000 - parseInt(date.getTime() - started_at.getTime());
-
-    document.getElementById("time").innerHTML = remaining;
-
-    if (remaining <= 0){
-        alert(players[0].score);
-        players[0].score = 0;
-        enemies = [];
-        enemy_id = 0;
-        started_at = new Date();
-
-    }
-    
+function updateMap(date) {    
 
     for (var i = 0; i < 25; i++) {
         map[i] = [];
@@ -158,7 +139,7 @@ function updateMap() {
 
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
-		if (player.isMoving) {player.move();}
+		if (player.isMoving && date.getTime() - player.lastMove.getTime() > 40) {player.move();}
         map[player.y][player.x] = player;
     }
 
@@ -214,8 +195,6 @@ function updateMap() {
 
 function updateCanvas() {
 
-    updateMap();
-
     for (y = 0; y < map.length; y++) {
 
         for (x = 0; x < map[y].length; x++) {
@@ -238,7 +217,36 @@ function updateCanvas() {
 
 }
 
-setInterval(updateCanvas, 1000/60);
+function updateGame() {
+	
+	var date = new Date();
+
+    var remaining = 30000 - parseInt(date.getTime() - started_at.getTime());
+
+    document.getElementById("time").innerHTML = remaining;
+
+    if (remaining <= 0){
+        
+		gameOver();
+
+    }
+	
+	updateMap(date);
+	updateCanvas();
+	
+}
+
+function gameOver() {
+	
+	alert(players[0].score);
+    players[0].score = 0;
+    enemies = [];
+    enemy_id = 0;
+    started_at = new Date();
+	
+}
+
+setInterval(updateGame, 1000/60);
 
 window.addEventListener('keydown', function (e) {
     switch (e.keyCode) {
@@ -286,18 +294,6 @@ window.addEventListener('keyup', function (e) {
         case 37:
 			if (players[0].movingDirection == 3)
             players[0].isMoving = false;
-            break;
-        case 87:
-            players[0].shootUp();
-            break;
-        case 68:
-            players[0].shootRight();
-            break;
-        case 83:
-            players[0].shootDown();
-            break;
-        case 65:
-            players[0].shootLeft();
             break;
     }
 })

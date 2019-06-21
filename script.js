@@ -297,3 +297,24 @@ window.addEventListener('keyup', function (e) {
             break;
     }
 })
+
+function canvasClick(event) {
+
+    var rect = canvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+    
+    var i = Math.floor(y/20);
+    var j = Math.floor(x/20);
+
+    console.log(map);
+    
+    if (map[i][j] instanceof Enemy) {
+        enemies[map[i][j].id] = null;
+        players[0].score++;
+        document.getElementById('score').innerHTML = players[0].score;
+    } else if (map[i][j] instanceof Player) {
+        players[map[i][j].id].color = getRandomColor();
+    }
+    
+}
